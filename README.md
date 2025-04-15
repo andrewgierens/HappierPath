@@ -17,7 +17,11 @@ Instead of bookmarking www.google.com or www.bbcnews.com, HappierPath lets you b
 * Depending on your browser run one of the following commands
   * Chrome `npm run build-prod-chrome`
   * FireFox `npm run build-prod-firefox`
-* Load the /dist folder into your browser. Instructions are dependent on browser, look up documentation for your browser
+* Loading your dev extension
+  * Chrome
+    * Load the /dist folder into your browser. Instructions are dependent on browser, look up documentation for your browser
+  * Firefox
+    * Head to about:debugging#/runtime/this-firefox, press "Load Temporary Add-on...", select the manifest.json file from the dist folder
 
 ## Testing
 * Open the popup page

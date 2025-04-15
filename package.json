@@ -6,6 +6,8 @@
   "scripts": {
     "build-dev-chrome": "tsc -b && cross-env BROWSER=chrome vite build --mode development",
     "build-dev-firefox": "tsc -b && cross-env BROWSER=firefox vite build --mode development",
+    "watch-chrome": "nodemon --watch src --ext ts,tsx --exec \"npm run build-dev-chrome\"",
+    "watch-firefox": "nodemon --watch src --ext ts,tsx --exec \"npm run build-dev-firefox\"",
     "build-prod-chrome": "tsc -b && cross-env BROWSER=chrome vite build --mode production",
     "build-prod-firefox": "tsc -b && cross-env BROWSER=firefox vite build --mode production",
     "lint": "eslint .",
@@ -32,6 +34,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "nodemon": "^3.1.9",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "ts-node": "^10.9.2",
