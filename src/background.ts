@@ -66,10 +66,11 @@ Browser.contextMenus.onClicked.addListener((info, tab) => {
   }
 
   // Check if user wants to open in new tab (middle-click or Ctrl/Cmd+click)
+  // Note: modifiers array is only available in Firefox, not in Chrome
   const openInNewTab =
-    info.button === 1 || // Middle click
-    info.modifiers?.includes('Ctrl') || // Ctrl key on Windows/Linux
-    info.modifiers?.includes('Command'); // Cmd key on Mac
+    info.button === 1 || // Middle click (works in both Chrome and Firefox)
+    (info.modifiers && info.modifiers.includes('Ctrl')) || // Ctrl key on Windows/Linux (Firefox only)
+    (info.modifiers && info.modifiers.includes('Command')); // Cmd key on Mac (Firefox only)
 
   goPath(tab, itemIndex, openInNewTab);
 });
