@@ -4,6 +4,10 @@ import { Links } from './types/Link';
 
 const DocumentUrlPatterns = ['http://*/*', 'https://*/*', 'ftp://*/*'];
 
+// Detect if we're running in Firefox by checking for Firefox-specific API
+// In Firefox, getBrowserInfo is available; in Chrome it's not
+const isFirefox = Browser.runtime.getBrowserInfo !== undefined;
+
 async function createContextMenu() {
   const links = await getLinksFromStorage();
 
@@ -22,6 +26,8 @@ async function createContextMenu() {
 
   links.links.forEach((link, index) => {
     const isHeading = link.pathUrl === '0';
+
+    // Create main menu item
     Browser.contextMenus.create({
       title: link.pathName,
       enabled: !isHeading,
@@ -29,6 +35,18 @@ async function createContextMenu() {
       id: index.toString(),
       documentUrlPatterns: DocumentUrlPatterns,
     });
+
+    // In Chrome, also create a "New Tab" version since Chrome doesn't support
+    // detecting middle-click or modifier keys in context menus
+    if (!isFirefox && !isHeading) {
+      Browser.contextMenus.create({
+        title: `${link.pathName} (New Tab)`,
+        enabled: true,
+        contexts: ['page'],
+        id: `${index}_newtab`,
+        documentUrlPatterns: DocumentUrlPatterns,
+      });
+    }
   });
 }
 
@@ -54,23 +72,39 @@ Browser.contextMenus.onClicked.addListener((info, tab) => {
   if (!tab || !tab.id) return;
 
   let itemIndex: number;
-  const menuItemIdType = typeof info.menuItemId;
-  if (menuItemIdType === 'string') {
-    const parsed = parseInt(info.menuItemId as string);
+  let openInNewTab = false;
+
+  const menuItemId = info.menuItemId.toString();
+
+  // Check if this is a "new tab" menu item (Chrome only)
+  if (menuItemId.endsWith('_newtab')) {
+    const indexStr = menuItemId.replace('_newtab', '');
+    const parsed = parseInt(indexStr);
     if (isNaN(parsed)) return;
     itemIndex = parsed;
-  } else if (menuItemIdType === 'number') {
-    itemIndex = info.menuItemId as number;
+    openInNewTab = true;
   } else {
-    return;
-  }
+    // Regular menu item
+    const menuItemIdType = typeof info.menuItemId;
+    if (menuItemIdType === 'string') {
+      const parsed = parseInt(info.menuItemId as string);
+      if (isNaN(parsed)) return;
+      itemIndex = parsed;
+    } else if (menuItemIdType === 'number') {
+      itemIndex = info.menuItemId as number;
+    } else {
+      return;
+    }
 
-  // Check if user wants to open in new tab (middle-click or Ctrl/Cmd+click)
-  // Note: modifiers array is only available in Firefox, not in Chrome
-  const openInNewTab =
-    info.button === 1 || // Middle click (works in both Chrome and Firefox)
-    (info.modifiers && info.modifiers.includes('Ctrl')) || // Ctrl key on Windows/Linux (Firefox only)
-    (info.modifiers && info.modifiers.includes('Command')); // Cmd key on Mac (Firefox only)
+    // In Firefox, check if user wants to open in new tab (middle-click or Ctrl/Cmd+click)
+    // Note: button and modifiers properties are only available in Firefox, not in Chrome
+    if (isFirefox) {
+      openInNewTab =
+        info.button === 1 || // Middle click
+        (info.modifiers && info.modifiers.includes('Ctrl')) || // Ctrl key on Windows/Linux
+        (info.modifiers && info.modifiers.includes('Command')); // Cmd key on Mac
+    }
+  }
 
   goPath(tab, itemIndex, openInNewTab);
 });
