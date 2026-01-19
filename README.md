@@ -39,6 +39,52 @@ Configure>/search/howsearchworks
 * Clicking the same links will take you to the same routes without changing the FQDN
 * This works because google.com and google.com.au share the same route structure. A traditional bookmark will also store the FQDN, which isn't useful when you have many websites that share the same route structure
 
+## Domain-Specific Context Menu (New in 5.2.0)
+
+HappierPath now supports domain-specific filtering for context menu items. You can configure paths to only appear in the context menu when you're on a specific domain or set of domains.
+
+### Syntax
+
+To make a path domain-specific, use the `@` symbol followed by a regex pattern:
+
+```
+Link Name>Path URL@Domain Pattern
+```
+
+### Examples
+
+**Single domain:**
+```
+GitHub Issues>/issues@github\.com
+```
+This link will only appear in the context menu when you're on github.com
+
+**Multiple domains:**
+```
+Admin Panel>/admin@(google|github)\.com
+Dev Tools>/tools@(dev|staging)\.example\.com
+```
+
+**Domain with subdomains:**
+```
+Dashboard>/dashboard@.*\.example\.com
+```
+This matches any subdomain of example.com (e.g., api.example.com, dev.example.com)
+
+**All domains (default behavior):**
+```
+Universal Link>/path
+```
+Links without the `@domain` pattern will appear on all domains, maintaining backward compatibility.
+
+### Context Menu Behavior
+
+* Context menu items are dynamically filtered based on the current tab's domain
+* The filtering happens automatically when you switch tabs or navigate to a new page
+* If no paths match the current domain, you'll see "No paths for this domain" in the context menu
+* Domain patterns are case-insensitive regex patterns
+* Invalid regex patterns will be logged to the console and those links will be hidden
+
 ## Change Log
 CHANGES IN vERSION 5.0.0
 
@@ -48,6 +94,18 @@ Change Requests:
 * Use MUI as a component Library
 * Theme option to toggle between Light and Dark. Light being the default
 * Updated wording on the Read and Write Path List buttons to be simply Save and Reset Config
+
+CHANGES IN VERSION 5.2.0
+
+Domain-Specific Context Menu Filtering
+
+Change Requests:
+
+* Context menu items can now be filtered by domain using regex patterns
+* Added support for domain-specific path configuration using `@domain` syntax
+* Context menu dynamically updates when switching tabs or navigating
+* Maintains backward compatibility - paths without domain patterns appear on all domains
+* Examples and documentation added to Path Editor UI
 
 CHANGES IN VERSION 4.3.0
 
