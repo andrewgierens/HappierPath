@@ -44,7 +44,41 @@ async function createContextMenuForTab(_tabId: number, hostname: string) {
     }
   });
 
-  if (matchingLinks.length === 0) {
+  // Remove headings that have no non-heading links following them
+  const filteredLinks: Array<{ link: Link; originalIndex: number }> = [];
+  for (let i = 0; i < matchingLinks.length; i++) {
+    const current = matchingLinks[i];
+    const isHeading = current.link.pathUrl === '0';
+
+    if (isHeading) {
+      // Check if there's at least one non-heading link after this heading
+      // before the next heading or end of list
+      let hasChildLinks = false;
+      for (let j = i + 1; j < matchingLinks.length; j++) {
+        const next = matchingLinks[j];
+        const nextIsHeading = next.link.pathUrl === '0';
+
+        if (nextIsHeading) {
+          // Reached next heading without finding any links
+          break;
+        }
+
+        // Found a non-heading link under this heading
+        hasChildLinks = true;
+        break;
+      }
+
+      // Only include heading if it has child links
+      if (hasChildLinks) {
+        filteredLinks.push(current);
+      }
+    } else {
+      // Always include non-heading links
+      filteredLinks.push(current);
+    }
+  }
+
+  if (filteredLinks.length === 0) {
     Browser.contextMenus.create({
       id: 'no_matching_paths',
       title: 'No paths for this domain',
@@ -55,7 +89,7 @@ async function createContextMenuForTab(_tabId: number, hostname: string) {
     return;
   }
 
-  matchingLinks.forEach(({ link, originalIndex }) => {
+  filteredLinks.forEach(({ link, originalIndex }) => {
     const isHeading = link.pathUrl === '0';
     Browser.contextMenus.create({
       title: link.pathName,
