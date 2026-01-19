@@ -43,39 +43,86 @@ Configure>/search/howsearchworks
 
 HappierPath now supports domain-specific filtering for context menu items. You can configure paths to only appear in the context menu when you're on a specific domain or set of domains.
 
-### Syntax
+### Configuration Format
 
-To make a path domain-specific, use the `@` symbol followed by a regex pattern:
+Each line follows this structure:
 
 ```
-Link Name>Path URL@Domain Pattern
+Name>Path[@Domain]
 ```
 
-### Examples
+**Components:**
+- **Name**: The display name for the link or heading
+- **`>`**: Separator (required) - splits name from path
+- **Path**: The URL path (use `0` for headings)
+- **`@`**: Domain separator (optional) - only needed for domain-specific links
+- **Domain**: Regex pattern to match domains (optional)
 
-**Single domain:**
+### Basic Examples
+
+**Heading (appears on all domains):**
+```
+My Tools>0
+```
+
+**Simple link (appears on all domains):**
+```
+Dashboard>/dashboard
+```
+
+**Domain-specific link:**
 ```
 GitHub Issues>/issues@github\.com
 ```
-This link will only appear in the context menu when you're on github.com
 
-**Multiple domains:**
+### Advanced Examples
+
+**Single domain:**
 ```
-Admin Panel>/admin@(google|github)\.com
-Dev Tools>/tools@(dev|staging)\.example\.com
+Admin Panel>/admin@example\.com
+```
+Only appears when browsing example.com
+
+**Multiple domains using OR (`|`):**
+```
+API Docs>/api/docs@(dev|staging|prod)\.example\.com
+```
+Appears on dev.example.com, staging.example.com, or prod.example.com
+
+**Wildcard subdomains using `.*`:**
+```
+Dashboard>/dashboard@.*\.company\.com
+```
+Matches any subdomain of company.com (e.g., api.company.com, dev.company.com)
+
+**Multiple different domains:**
+```
+Admin>/admin@(github|gitlab)\.com
+```
+Appears on both github.com and gitlab.com
+
+### Complete Configuration Example
+
+```
+Work Tools>0
+Company Dashboard>/dashboard@company\.com
+Dev Environment>/admin@dev\.company\.com
+
+GitHub>0
+Issues>/issues@github\.com
+Pull Requests>/pulls@github\.com
+
+Universal Links>0
+Google Search>/search
+Wikipedia>/wiki
 ```
 
-**Domain with subdomains:**
-```
-Dashboard>/dashboard@.*\.example\.com
-```
-This matches any subdomain of example.com (e.g., api.example.com, dev.example.com)
+### Important Notes
 
-**All domains (default behavior):**
-```
-Universal Link>/path
-```
-Links without the `@domain` pattern will appear on all domains, maintaining backward compatibility.
+- **Escape dots in domains**: Use `\.` instead of `.` (e.g., `github\.com` not `github.com`)
+- **Case-insensitive**: Domain matching ignores case
+- **Headings without children**: Headings are automatically hidden if no child links match the current domain
+- **Backward compatible**: Links without `@Domain` appear on all domains
 
 ### Context Menu Behavior
 
