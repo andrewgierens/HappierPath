@@ -67,7 +67,9 @@ const PathEditor = ({ links, setLinks }: PathEditorProps) => {
       </Typography>
       <Typography variant="body2" sx={{ mb: 1, whiteSpace: 'pre-line' }}>
         {`Heading - This is a heading>0
-Link - This is a link>/example/path`}
+Link - This is a link>/example/path
+Domain-specific - Link for specific domain>/path@example\\.com
+Multi-domain - Link for multiple domains>/path@(google|github)\\.com`}
       </Typography>
       <TextField
         value={editorText}
